@@ -6,7 +6,9 @@ async function main() {
   // ---- 1. What does an async function return? -----------------------------
   async function getCount() { return 3; }
   console.log("1:", getCount());
-  // Prediction:
+  // Prediction: 1: 3
+  /* 1: Promise { 3 }
+  An async function always returns a Promise, even when returning a normal value like 3 */
 
   // ---- 2. The order things happen in ----------------------------------------
   console.log("2: a");
@@ -14,7 +16,8 @@ async function main() {
   Promise.resolve().then(() => console.log("2: c (promise)"));
   console.log("2: d");
   await wait(10);
-  // Prediction (order of a, b, c, d):
+  // Prediction (order of a, b, c, d): 2:a 2:d 2: c(promise) 2:b(timer)
+
 
   // ---- 3. await pauses THIS function, not the program ------------------------
   const order = [];
@@ -23,7 +26,7 @@ async function main() {
   order.push("main carries on");
   await running;
   console.log("3:", order);
-  // Prediction:
+  // Prediction:3: job starts, main carries on, job ends
 
   // ---- 4. One after another, or all at once? ---------------------------------
   let t = Date.now();
@@ -32,7 +35,8 @@ async function main() {
   t = Date.now();
   await Promise.all([wait(100), wait(100), wait(100)]);
   console.log("4: all at once took about", Math.round((Date.now() - t) / 50) * 50, "ms");
-  // Prediction (both numbers):
+  // Prediction (both numbers): 4: in order took about 0 4: all at once took about 1000ms
+  /* Sequential: ~300 ms; Parallel: ~100 ms	Three sequential awaits wait for each timer individually, while Promise.all() starts all three timers together.*/
 
   // ---- 5. Who finishes first? -----------------------------------------------
   const winners = [];
@@ -43,6 +47,7 @@ async function main() {
   console.log("5: arrived in this order:", winners);
   // Prediction — and if each one REPLACED the list on screen when it arrived,
   // which department would the student see at the end?
+  //5: arrived in this order: Mathematics (asked second, fast network) , Electronics (asked first, slow network): 
 
   // ---- 6. A closure, captured at call time ------------------------------------
   let department = "Electronics";
@@ -50,7 +55,7 @@ async function main() {
   const pending = showLater();
   department = "Mathematics";
   console.log("6:", await pending, "| department is now", department);
-  // Prediction:
+  // Prediction:6: showing Electronics | department is now Mathematics
 
   // ---- 7. An error inside async ----------------------------------------------
   async function load() { throw new Error("HTTP 500"); }
@@ -60,7 +65,7 @@ async function main() {
   } catch (error) {
     console.log("7: caught", error.message);
   }
-  // Prediction:
+  // Prediction: 7: caught HTTP 500
 }
 
 main();
