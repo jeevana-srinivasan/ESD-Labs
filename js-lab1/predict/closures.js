@@ -11,19 +11,22 @@ const a = makeCounter();
 const b = makeCounter();
 a(); a();
 console.log("1:", a(), b());
-// Prediction:
+// Prediction: 1: 3,4
+//Each call to makeCounter() creates a separate closure with its own n = 0, so a reaches 3 while b starts at 1.
 
 // ---- 2. A closure sees the VARIABLE, not a copy of its value ----------
 let total = 0;
 const report = () => console.log("2:", total);
 total = 24;
 report();
-// Prediction:
+// Prediction: 2: 24
 
 // ---- 3. var vs let in a loop ------------------------------------------
 for (var i = 0; i < 3; i++) setTimeout(() => console.log("3 var:", i), 0);
 for (let j = 0; j < 3; j++) setTimeout(() => console.log("3 let:", j), 0);
-// Prediction:
+// Prediction: 3 var: 0 3 var: 1 3 var: 2 3 let: 0 3 let: 0 3 let: 0
+//var → All callbacks share the same i, which becomes 3 when the loop finishes.
+//let → Each iteration creates a separate j, so the callbacks remember 0, 1, and 2.
 
 // ---- 4. One function call = one set of variables (React's model) -----
 // Imagine render() is a React component running once per render.
@@ -35,7 +38,7 @@ const firstRender = render(0);
 const secondRender = render(1);
 firstRender();
 secondRender();
-// Prediction:
+// Prediction: 4: clicked, count was 0 4: clicked, count was 1
 
 // ---- 5. The stale handler ---------------------------------------------
 // A timer set up during the FIRST render fires later, after the screen
@@ -45,4 +48,5 @@ function renderWithTimer(count) {
 }
 renderWithTimer(0);
 renderWithTimer(1);
-// Prediction:
+// Prediction: 5: timer from the render where count was 0 
+//5: timer from the render where count was 1
