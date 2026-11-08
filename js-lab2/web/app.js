@@ -134,6 +134,10 @@ function renderSgpa(state) {
 // ---------------------------------------------------------------------------
 // TODO: const [getState, setState] = useState(initialState, render);
 // TODO: const dispatch = (event) => …   (hint: setState with an updater that calls transition)
+const [getState, setState] = useState(initialState, render);
+
+const dispatch = (event) =>
+  setState((state) => transition(state, event));
 
 // ---------------------------------------------------------------------------
 // Step 2 (sections 07 and 08) — render(): draw the state.
@@ -142,6 +146,13 @@ function renderSgpa(state) {
 // ---------------------------------------------------------------------------
 function render() {
   // TODO
+  const state = getState();
+
+  renderDepartments(state);
+  renderStatus(state);
+  renderCourses(state);
+  renderPlanner(state);
+  renderSgpa(state);
 }
 
 // ---------------------------------------------------------------------------
@@ -151,6 +162,20 @@ function render() {
 // ---------------------------------------------------------------------------
 async function load() {
   // TODO
+  const { department, query } = getState();
+
+  dispatch({ type: "LOAD_START" });
+
+  try {
+    const courses = await fetchCourses(
+      { department, q: query },
+      fetchWithNetwork
+    );
+
+    dispatch({ type: "LOAD_OK", courses });
+  } catch (error) {
+    dispatch({ type: "LOAD_FAIL", message: error.message });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -159,14 +184,76 @@ async function load() {
 // (event delegation, JS Lab 1 section 13).
 // ---------------------------------------------------------------------------
 // TODO: search box "input"      → SET_QUERY, then load()
+els.search.addEventListener("input", (event) => {
+  dispatch({ type: "SET_QUERY", query: event.target.value });
+  load();
+});
 // TODO: department buttons       → SET_DEPARTMENT, then load()
+els.departments.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-department]");
+
+  if (!button) return;
+
+  dispatch({
+    type: "SET_DEPARTMENT",
+    department: button.dataset.department
+  });
+
+  load();
+});
 // TODO: course card buttons      → ADD (with the course object) or REMOVE (with the id)
+els.courses.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-id]");
+
+  if (!button) return;
+
+  const id = Number(button.dataset.id);
+
+  if (button.dataset.inPlanner === "true") {
+    dispatch({ type: "REMOVE", id });
+  } else {
+    const course = getState().courses.find(c => c.id === id);
+
+    if (course) {
+      dispatch({ type: "ADD", course });
+    }
+  }
+});
 // TODO: grade selects "change"   → SET_GRADE
+els.planned.addEventListener("change", (event) => {
+  const select = event.target.closest("select[data-id]");
+
+  if (!select) return;
+
+  dispatch({
+    type: "SET_GRADE",
+    id: Number(select.dataset.id),
+    grade: select.value
+  });
+});
 // TODO: planner ✕ buttons        → REMOVE
+els.planned.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-remove]");
+
+  if (!button) return;
+
+  dispatch({
+    type: "REMOVE",
+    id: Number(button.dataset.remove)
+  });
+});
 // TODO: the form's "submit"      → preventDefault (Enter in a field must not reload the page)
+els.sgpaForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+});
 // TODO: "Try again" button       → load()
+els.retry.addEventListener("click", () => {
+  load();
+});
 
 // ---------------------------------------------------------------------------
 // Start: draw once, then load.
 // ---------------------------------------------------------------------------
 // TODO: render(); load();
+render();
+load();
