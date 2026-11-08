@@ -144,15 +144,45 @@ const dispatch = (event) =>
 // First make it call all five region functions every time. Then (section 08)
 // make it redraw a region only when the part of the state it shows has changed.
 // ---------------------------------------------------------------------------
-function render() {
+
   // TODO
-  const state = getState();
+  /*const state = getState();
 
   renderDepartments(state);
   renderStatus(state);
   renderCourses(state);
   renderPlanner(state);
-  renderSgpa(state);
+  renderSgpa(state);*/
+
+let previous = null;
+
+function render() {
+  const state = getState();
+
+  const changed = (...fields) =>
+    previous === null ||
+    fields.some(field => previous[field] !== state[field]);
+
+  if (changed("departments", "department")) {
+    renderDepartments(state);
+  }
+
+  if (changed("status", "error", "courses")) {
+    renderStatus(state);
+  }
+
+  if (changed("courses", "planner")) {
+    renderCourses(state);
+  }
+
+  if (changed("planner")) {
+    renderPlanner(state);
+  }
+
+  if (changed("planner", "grades")) {
+    renderSgpa(state);
+  }
+  previous = state;
 }
 
 // ---------------------------------------------------------------------------
