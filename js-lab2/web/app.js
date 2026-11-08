@@ -190,6 +190,7 @@ function render() {
 // LOAD_START before; LOAD_OK or LOAD_FAIL after. Use fetchCourses(filters, fetchWithNetwork).
 // Section 09: keep only the LATEST response, with createLatestOnly().
 // ---------------------------------------------------------------------------
+const track = createLatestOnly();
 async function load() {
   // TODO
   const { department, query } = getState();
@@ -197,14 +198,25 @@ async function load() {
   dispatch({ type: "LOAD_START" });
 
   try {
-    const courses = await fetchCourses(
-      { department, q: query },
-      fetchWithNetwork
+    const result = await track(
+      fetchCourses(
+        { department, q: query },
+        fetchWithNetwork
+      )
     );
 
-    dispatch({ type: "LOAD_OK", courses });
+    if (!result.stale) {
+      dispatch({
+        type: "LOAD_OK",
+        courses: result.value
+      });
+    }
+
   } catch (error) {
-    dispatch({ type: "LOAD_FAIL", message: error.message });
+    dispatch({
+      type: "LOAD_FAIL",
+      message: error.message
+    });
   }
 }
 
