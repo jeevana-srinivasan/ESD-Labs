@@ -11,5 +11,21 @@
 import { wait } from "../src/s03-async.js";
 
 export async function retry(task, attempts, delayMs, { backoff = false } = {}) {
-  throw new Error("TODO");
+  let delay = delayMs;
+
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await task();
+    } catch (error) {
+      if (i === attempts - 1) {
+        throw error;
+      }
+
+      await wait(delay);
+
+      if (backoff) {
+        delay *= 2;
+      }
+    }
+  }
 }
