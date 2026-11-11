@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Header from "./Header.jsx";
 import Matrix from "./Matrix.jsx";
 import Stats from "./Stats.jsx";
+import Cell from "./Cell.jsx";
 import { START, incrementAt, decrementAt, zeros } from "./matrix.js";
 
 export default function App() {
@@ -16,6 +17,12 @@ export default function App() {
   return (
     <main className="app">
       <Header />
+      <Cell
+        row={0}
+        col={1}
+        value={5}
+        onClick={() => console.log("clicked")}
+      />
     </main>
   );
 }
