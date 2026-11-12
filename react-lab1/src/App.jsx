@@ -23,7 +23,10 @@ export default function App() {
   return (
     <>
       <Header />
-      <Matrix matrix={matrix} onIncrement={increment} />
+      <div className="board">
+        <Matrix matrix={matrix} onIncrement={increment} />
+        <Stats matrix={matrix} />
+      </div>
     </>
   );
 }
