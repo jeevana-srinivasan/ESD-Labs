@@ -18,7 +18,21 @@ export default function App() {
 
   function increment(row, col) {
     setMatrix(prev => incrementAt(prev, row, col));
+    /*setMatrix((prev) => {
+    prev[row][col] += 1;
+    return prev;
+  });*/
   }
+
+  useEffect(() => {
+    async function load() {
+      const res = await fetch("/matrix.json");
+      setMatrix(await res.json());
+    }
+
+    load();
+  }, []);
+
 
   return (
     <>
