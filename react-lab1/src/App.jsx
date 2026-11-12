@@ -15,13 +15,22 @@ export default function App() {
   // Section 09: render <Stats matrix={…} /> NEXT TO the matrix, not inside it.
   // Section 11: load /matrix.json once, in a useEffect, and put it in the state.
   const [matrix, setMatrix] = useState(START);
+  const [step, setStep] = useState(1);
 
   function increment(row, col) {
-    setMatrix(prev => incrementAt(prev, row, col));
+    setMatrix(prev => incrementAt(prev, row, col, step));
     /*setMatrix((prev) => {
     prev[row][col] += 1;
     return prev;
   });*/
+  }
+
+  function reset() {
+    setMatrix(prev => zeros(prev));
+  }
+
+  function decrement(row, col) {
+    setMatrix(prev => decrementAt(prev, row, col));
   }
 
   useEffect(() => {
@@ -37,10 +46,20 @@ export default function App() {
   return (
     <>
       <Header />
+      <label>
+        Step{" "}
+        <input
+          type="number"
+          min="1"
+          value={step}
+          onChange={(event) => setStep(Number(event.target.value))}
+        />
+      </label>
+      <button onClick={reset}>Reset</button>
       <div className="board">
-        <Matrix matrix={matrix} onIncrement={increment} />
+        <Matrix matrix={matrix} onIncrement={increment} onDecrement={decrement}/>
         <Stats matrix={matrix} />
-      </div>
+      </div>  
     </>
   );
 }
